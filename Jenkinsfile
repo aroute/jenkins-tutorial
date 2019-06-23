@@ -1,15 +1,25 @@
-pipeline {
-  agent {
-    docker {
-      image 'docker.io/maven:3.3.3'
-    }
+def label = "waiting-game-${UUID.randomUUID().toString()}"
 
-  }
-  stages {
-    stage('build') {
-      steps {
-        sh 'mvn --version'
-      }
+podTemplate(label: label, 
+yaml: """
+apiVersion: v1
+kind: Pod
+metadata:
+  namespace: default
+spec:
+  containers:
+    - name: ubuntu
+      image: ubuntu
+      tty: true
+"""
+) {
+     node(label){
+       stage('Run'){
+         container('ubuntu') {
+           echo 'waiting game'
+           sleep 5
+           echo 'bye'
+         }
+       }
     }
-  }
 }
